@@ -11,5 +11,9 @@
   "description": "",
   "dependencies": {
     "websocket": "^1.0.35"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.10",
+    "@types/websocket": "^1.0.10"
   }
 }
