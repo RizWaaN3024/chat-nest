@@ -10,7 +10,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "websocket": "^1.0.35"
+    "websocket": "^1.0.35",
+    "zod": "^3.25.74"
   },
   "devDependencies": {
     "@types/node": "^24.0.10",
