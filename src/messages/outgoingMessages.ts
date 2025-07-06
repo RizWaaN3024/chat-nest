@@ -8,7 +8,7 @@ type MessagePayload = {
     roomId: string;
     message: string;
     name: string;
-    upvotes: string;
+    upvotes: number;
 }
 
 export type OutgoingMessage = {

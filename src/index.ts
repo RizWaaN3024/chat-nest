@@ -3,6 +3,7 @@ import http from "http";
 import { IncomingMessage, SupportedMessage } from "./messages/incomingMessages";
 import { UserManager } from "./UserManager";
 import { InMemoryStore } from "./store/InMemoryStore";
+import { OutgoingMessage, SupportedMessage as OutgoingSupportedMessages } from "./messages/outgoingMessages";
 
 const server = http.createServer(function(request: any, response: any) {
     console.log((new Date()) + ' Received request for ' + request.url);
@@ -68,8 +69,17 @@ function messageHandler(ws: connection, message: IncomingMessage) {
         }
         store.addChat(payload.userId, user.name, payload.roomId, payload.message);
         // Todo add broadcast logic here
+        const outgoingPayload: OutgoingMessage = {
+            type: OutgoingSupportedMessages.AddChat,
+            payload: {
+                roomId: payload.roomId,
+                message: payload.message,
+                name: user.name,
+                upvotes: 0
+            }
+        }
+        userManager.broadcast(payload.roomId, payload.userId, outgoingPayload);
     }
     if (message.type === SupportedMessage.UpvoteMessage) {
-        
     }
 }

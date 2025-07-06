@@ -7,7 +7,7 @@ export interface Room {
     chats: Chat[];
 }
 
-export abstract class InMemoryStore implements Store {
+export class InMemoryStore implements Store {
     private store: Map<string, Room>;
     constructor() {
         this.store = new Map<string, Room>;
