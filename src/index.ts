@@ -67,11 +67,15 @@ function messageHandler(ws: connection, message: IncomingMessage) {
             console.error("User not found in the db");
             return;
         }
-        store.addChat(payload.userId, user.name, payload.roomId, payload.message);
+        let chat = store.addChat(payload.userId, user.name, payload.roomId, payload.message);
+        if (!chat) {
+            return;
+        }
         // Todo add broadcast logic here
         const outgoingPayload: OutgoingMessage = {
             type: OutgoingSupportedMessages.AddChat,
             payload: {
+                chatId: chat.id,
                 roomId: payload.roomId,
                 message: payload.message,
                 name: user.name,
@@ -81,5 +85,20 @@ function messageHandler(ws: connection, message: IncomingMessage) {
         userManager.broadcast(payload.roomId, payload.userId, outgoingPayload);
     }
     if (message.type === SupportedMessage.UpvoteMessage) {
+        const payload = message.payload;
+        const chat = store.upvote(payload.userId, payload.roomId, payload.chatId);
+        if (!chat) {
+            return;
+        }
+
+        const outgoingPayload: OutgoingMessage = {
+            type: OutgoingSupportedMessages.UpdateChat,
+            payload: {
+                chatId: payload.chatId,
+                roomId: payload.roomId,
+                upvotes: chat.upvotes.length
+            }
+        }
+        userManager.broadcast(payload.roomId, payload.userId, outgoingPayload);
     }
 }
