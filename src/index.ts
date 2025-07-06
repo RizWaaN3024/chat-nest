@@ -1,5 +1,8 @@
-import { server as WebSocketServer } from "websocket";
+import { connection, server as WebSocketServer } from "websocket";
 import http from "http";
+import { IncomingMessage, SupportedMessage } from "./messages/incomingMessages";
+import { UserManager } from "./UserManager";
+import { InMemoryStore } from "./store/InMemoryStore";
 
 const server = http.createServer(function(request: any, response: any) {
     console.log((new Date()) + ' Received request for ' + request.url);
@@ -10,6 +13,9 @@ const server = http.createServer(function(request: any, response: any) {
 server.listen(8080, function() {
     console.log((new Date()) + ' Server is listening on port 8080');
 });
+
+const userManager = new UserManager();
+const store = new InMemoryStore();
 
 const wsServer = new WebSocketServer({
     httpServer: server,
@@ -47,3 +53,23 @@ wsServer.on('request', function(request) {
         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
     });
 });
+
+function messageHandler(ws: connection, message: IncomingMessage) {
+    if (message.type == SupportedMessage.JoinRoom) {
+        const payload = message.payload;
+        userManager.addUser(payload.name, payload.userId, payload.roomId, ws);
+    }
+    if (message.type === SupportedMessage.SendMessage) {
+        const payload = message.payload;
+        const user = userManager.getUser(payload.roomId, payload.userId);
+        if (!user) {
+            console.error("User not found in the db");
+            return;
+        }
+        store.addChat(payload.userId, user.name, payload.roomId, payload.message);
+        // Todo add broadcast logic here
+    }
+    if (message.type === SupportedMessage.UpvoteMessage) {
+        
+    }
+}
